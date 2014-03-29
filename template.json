@@ -1,0 +1,48 @@
+{
+	"variables": {
+		"version": "dev-channel"
+	},
+    "builders": [{
+        "name": "coreos-virtualbox",
+        "vm_name": "coreos-{{user `version`}}",
+        "type": "virtualbox-iso",
+        "guest_os_type": "Linux26_64",
+        "guest_additions_mode": "disable",
+        "headless": true,
+        "format": "ova",
+        "output_directory": "images/coreos-{{user `version`}}",
+        "hard_drive_interface": "sata",
+        "disk_size": 40000,
+        "vboxmanage": [
+            ["modifyvm", "{{.Name}}", "--cpus", "1"],
+            ["modifyvm", "{{.Name}}", "--memory", "1024"]
+        ],
+        "iso_url": "http://downloads.sourceforge.net/project/systemrescuecd/sysresccd-x86/3.8.1/systemrescuecd-x86-3.8.1.iso?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fsystemrescuecd%2Ffiles%2Fsysresccd-x86%2F3.8.1%2Fsystemrescuecd-x86-3.8.1.iso%2Fdownload&ts=1396049223&use_mirror=softlayer-ams",
+        "iso_checksum": "22acfc87b32d096290531d82feb87602",
+        "iso_checksum_type": "md5",
+        "ssh_username": "root",
+        "ssh_password": "PackerInstaller",
+        "boot_wait": "3s",
+        "boot_command": [
+            "<enter><wait5><enter>",
+            "<wait10><wait5>",
+            "echo 'root:PackerInstaller' | chpasswd<enter>"
+        ],
+        "shutdown_command": "shutdown -h now"
+    }],
+    "provisioners": [{
+        "type": "file",
+        "source": "templates/coreos/id_rsa.pub",
+        "destination": "/tmp/id_rsa.pub"
+    }, {
+        "type": "shell",
+        "inline": [
+            "#!/bin/sh",
+            "wget https://raw.github.com/coreos/init/master/bin/coreos-install -O /tmp/coreos-install || exit 1",
+            "bash /tmp/coreos-install -d /dev/sda -V {{user `version`}}",
+            "mount /dev/sda9 /mnt/gentoo",
+            "mkdir -p /mnt/gentoo/overlays/home/core/.ssh",
+            "cp /tmp/id_rsa.pub /mnt/gentoo/overlays/home/core/.ssh/authorized_keys"
+        ]
+    }]
+}
