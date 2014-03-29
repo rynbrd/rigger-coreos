@@ -1,7 +1,7 @@
 {
     "variables": {
         "version": "dev-channel",
-        "images": "../../images"
+        "images": "."
     },
     "builders": [{
         "name": "coreos-virtualbox",
