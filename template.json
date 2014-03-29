@@ -1,7 +1,8 @@
 {
-	"variables": {
-		"version": "dev-channel"
-	},
+    "variables": {
+        "version": "dev-channel",
+        "images": "../../images"
+    },
     "builders": [{
         "name": "coreos-virtualbox",
         "vm_name": "coreos-{{user `version`}}",
@@ -10,7 +11,7 @@
         "guest_additions_mode": "disable",
         "headless": true,
         "format": "ova",
-        "output_directory": "images/coreos-{{user `version`}}",
+        "output_directory": "{{user `images`}}/coreos-{{user `version`}}",
         "hard_drive_interface": "sata",
         "disk_size": 40000,
         "vboxmanage": [
@@ -32,7 +33,7 @@
     }],
     "provisioners": [{
         "type": "file",
-        "source": "templates/coreos/id_rsa.pub",
+        "source": "id_rsa.pub",
         "destination": "/tmp/id_rsa.pub"
     }, {
         "type": "shell",
