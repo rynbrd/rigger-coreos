@@ -1,17 +1,17 @@
 {
     "variables": {
         "version": "dev-channel",
-        "images": "."
+        "artifacts": "."
     },
     "builders": [{
-        "name": "coreos-virtualbox",
+        "name": "virtualbox",
         "vm_name": "coreos-{{user `version`}}",
         "type": "virtualbox-iso",
         "guest_os_type": "Linux26_64",
         "guest_additions_mode": "disable",
         "headless": true,
         "format": "ova",
-        "output_directory": "{{user `images`}}/coreos-{{user `version`}}",
+        "output_directory": "{{user `artifacts`}}/coreos-{{user `version`}}",
         "hard_drive_interface": "sata",
         "disk_size": 40000,
         "vboxmanage": [
