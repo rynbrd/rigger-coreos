@@ -1,7 +1,7 @@
 {
     "variables": {
-        "version": "dev-channel",
-        "artifacts": "."
+        "version": "{{env `VERSION`}}",
+        "artifacts": "{{env `ARTIFACTS`}}"
     },
     "builders": [{
         "name": "virtualbox",
