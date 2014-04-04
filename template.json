@@ -1,12 +1,36 @@
 {
     "variables": {
         "version": "{{env `VERSION`}}",
-        "artifacts": "{{env `ARTIFACTS`}}"
+        "artifacts": "{{env `ARTIFACTS`}}",
+        "aws_account_id": "",
+        "aws_access_key": "",
+        "aws_secret_key": "",
+        "aws_bucket": ""
     },
     "builders": [{
+        "name": "amazon",
+        "type": "amazon-instance",
+        "account_id": "{{user `aws_account_id`}}",
+        "access_key": "{{user `aws_access_key`}}",
+        "secret_key": "{{user `aws_secret_key`}}",
+        "x509_cert_path": "cert.pem",
+        "x509_key_path": "pk.pem",
+        "x509_upload_path": "/tmp",
+        "ami_name": "CoreOS {{user `version`}}",
+        "s3_bucket": "{{user `aws_bucket`}}/coreos/{{user `version`}}",
+        "region": "us-east-1",
+        "ami_regions": ["us-west-1", "us-west-2"],
+        "source_ami": "ami-6b726502",
+        "instance_type": "m1.small",
+        "ssh_username": "ec2-user",
+        "ssh_timeout": "5m",
+        "bundle_prefix": "coreos",
+        "bundle_vol_command": "ec2-bundle-image -i /tmp/coreos.bin -p coreos -d \"{{.Destination}}\" --arch x86_64 --kernel \"aki-919dcaf8\" --block-device-mapping ami=sda -u \"{{.AccountId}}\" -c \"{{.CertPath}}\" -k \"{{.KeyPath}}\"",
+        "bundle_upload_command": "ec2-upload-bundle -b \"{{.BucketName}}\" -m \"{{.ManifestPath}}\" -a \"{{.AccessKey}}\" -s \"{{.SecretKey}}\""
+    }, {
         "name": "virtualbox",
-        "vm_name": "coreos-{{user `version`}}",
         "type": "virtualbox-iso",
+        "vm_name": "coreos-{{user `version`}}",
         "guest_os_type": "Linux26_64",
         "guest_additions_mode": "disable",
         "headless": true,
@@ -32,11 +56,30 @@
         "shutdown_command": "shutdown -h now"
     }],
     "provisioners": [{
+        "type": "shell",
+        "only": ["amazon"],
+        "inline": [
+            "#!/bin/bash",
+            "echo '>> Fixing sudo...'",
+            "sudo sed -i -r -e 's|^(Defaults    secure_path.*)|\\1:/opt/aws/bin|g' /etc/sudoers",
+            "echo '>> Prepping /tmp...'",
+            "cd /tmp",
+            "mkdir bundle",
+            "echo '>> Downloading image...'",
+            "wget http://storage.core-os.net/coreos/amd64-generic/{{user `version`}}/coreos_production_ami_image.bin.bz2 -O coreos.bin.bz2 || exit 1",
+            "echo '>> Preparing image...'",
+            "bunzip2 coreos.bin.bz2 || exit 1",
+            "truncate --size 9G coreos.bin",
+            "echo '>> Passing control to Packer...'"
+        ]
+    }, {
         "type": "file",
+        "only": ["virtualbox"],
         "source": "id_rsa.pub",
         "destination": "/tmp/id_rsa.pub"
     }, {
         "type": "shell",
+        "only": ["virtualbox"],
         "inline": [
             "#!/bin/sh",
             "wget https://raw.github.com/coreos/init/master/bin/coreos-install -O /tmp/coreos-install || exit 1",
