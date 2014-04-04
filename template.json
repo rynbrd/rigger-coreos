@@ -5,7 +5,9 @@
         "aws_account_id": "",
         "aws_access_key": "",
         "aws_secret_key": "",
-        "aws_bucket": ""
+        "aws_bucket": "",
+        "aws_x509_cert": "",
+        "aws_x509_key": ""
     },
     "builders": [{
         "name": "amazon",
@@ -13,8 +15,8 @@
         "account_id": "{{user `aws_account_id`}}",
         "access_key": "{{user `aws_access_key`}}",
         "secret_key": "{{user `aws_secret_key`}}",
-        "x509_cert_path": "cert.pem",
-        "x509_key_path": "pk.pem",
+        "x509_cert_path": "{{user `aws_x509_cert`}}",
+        "x509_key_path": "{{user `aws_x509_key`}}",
         "x509_upload_path": "/tmp",
         "ami_name": "CoreOS {{user `version`}}",
         "s3_bucket": "{{user `aws_bucket`}}/coreos/{{user `version`}}",
