@@ -58,30 +58,28 @@
     }],
     "provisioners": [{
         "type": "file",
-        "only": ["amazon"],
+        "only": ["amazon-instance"],
         "source": "files",
         "destination": "/tmp/files"
     }, {
         "type": "shell",
-        "only": ["amazon"],
+        "only": ["amazon-instance"],
         "inline": [
-            "#!/bin/bash",
+            "#!/bin/sh",
+            "test \"$(whoami)\" != \"root\" && exec sudo -n \"$0\" \"$@\"",
             "set -e",
-            "echo '>> Fixing sudo...'",
-            "sudo sed -i -r -e 's|^(Defaults    secure_path.*)|\\1:/opt/aws/bin|g' /etc/sudoers",
             "echo '>> Installing EC2 tools...'",
-            "sudo cp /tmp/files/sources.list /etc/apt/sources.list",
-            "sudo apt-get update -y",
-            "sudo apt-get install -y ec2-api-tools ec2-ami-tools",
-            "echo '>> Prepping /tmp...'",
-            "cd /tmp",
-            "mkdir bundle",
-            "echo '>> Downloading image...'",
-            "wget http://storage.core-os.net/coreos/amd64-generic/{{user `version`}}/coreos_production_ami_image.bin.bz2 -O coreos.bin.bz2",
+            "cp /tmp/files/sources.list /etc/apt/sources.list",
+            "apt-get update -y",
+            "apt-get install -y ec2-api-tools ec2-ami-tools",
             "echo '>> Preparing image...'",
-            "bunzip2 coreos.bin.bz2",
-            "truncate --size 9G coreos.bin",
-            "echo '>> Passing control to Packer...'"
+            "mkdir /tmp/bundle",
+            "truncate -s 9G /tmp/coreos.bin",
+            "losetup /dev/loop0 /tmp/coreos.bin",
+            "wget https://raw.github.com/coreos/init/master/bin/coreos-install -O /tmp/coreos-install",
+            "bash /tmp/coreos-install -o ami -d /dev/loop0 -V {{user `version`}}",
+            "losetup -d /dev/loop0",
+            "echo '>> Done.'"
         ]
     }, {
         "type": "file",
