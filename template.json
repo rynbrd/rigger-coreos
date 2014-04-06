@@ -66,6 +66,7 @@
         "only": ["amazon"],
         "inline": [
             "#!/bin/bash",
+            "set -e",
             "echo '>> Fixing sudo...'",
             "sudo sed -i -r -e 's|^(Defaults    secure_path.*)|\\1:/opt/aws/bin|g' /etc/sudoers",
             "echo '>> Installing EC2 tools...'",
@@ -76,9 +77,9 @@
             "cd /tmp",
             "mkdir bundle",
             "echo '>> Downloading image...'",
-            "wget http://storage.core-os.net/coreos/amd64-generic/{{user `version`}}/coreos_production_ami_image.bin.bz2 -O coreos.bin.bz2 || exit 1",
+            "wget http://storage.core-os.net/coreos/amd64-generic/{{user `version`}}/coreos_production_ami_image.bin.bz2 -O coreos.bin.bz2",
             "echo '>> Preparing image...'",
-            "bunzip2 coreos.bin.bz2 || exit 1",
+            "bunzip2 coreos.bin.bz2",
             "truncate --size 9G coreos.bin",
             "echo '>> Passing control to Packer...'"
         ]
@@ -92,7 +93,8 @@
         "only": ["virtualbox"],
         "inline": [
             "#!/bin/sh",
-            "wget https://raw.github.com/coreos/init/master/bin/coreos-install -O /tmp/coreos-install || exit 1",
+            "set -e",
+            "wget https://raw.github.com/coreos/init/master/bin/coreos-install -O /tmp/coreos-install",
             "bash /tmp/coreos-install -d /dev/sda -V {{user `version`}}",
             "mount -o subvol=root /dev/sda9 /mnt/gentoo",
             "mkdir -p /mnt/gentoo/home/core/.ssh",
