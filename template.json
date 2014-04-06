@@ -20,13 +20,16 @@
         "ami_name": "CoreOS {{user `version`}}",
         "s3_bucket": "{{user `aws_bucket`}}/coreos/{{user `version`}}",
         "region": "us-east-1",
-        "ami_regions": ["us-west-1", "us-west-2"],
         "source_ami": "ami-e1455788",
         "instance_type": "m1.small",
         "ssh_username": "ubuntu",
         "ssh_timeout": "5m",
+        "ami_block_device_mappings": [{
+            "device_name": "/dev/sdb",
+            "virtual_name": "ephemeral0"
+        }],
         "bundle_prefix": "coreos",
-        "bundle_vol_command": "ec2-bundle-image -i /tmp/coreos.bin -p coreos -d \"{{.Destination}}\" --arch x86_64 --kernel \"aki-919dcaf8\" --block-device-mapping ami=sda -u \"{{.AccountId}}\" -c \"{{.CertPath}}\" -k \"{{.KeyPath}}\"",
+        "bundle_vol_command": "ec2-bundle-image -i /tmp/coreos.bin -p coreos -d \"{{.Destination}}\" --arch x86_64 --kernel \"aki-919dcaf8\" --block-device-mapping ami=sda,ephemeral0=sdb,ephemeral1=sdc,ephemeral2=sdd,ephemeral3=sde -u \"{{.AccountId}}\" -c \"{{.CertPath}}\" -k \"{{.KeyPath}}\"",
         "bundle_upload_command": "ec2-upload-bundle -b \"{{.BucketName}}\" -m \"{{.ManifestPath}}\" -a \"{{.AccessKey}}\" -s \"{{.SecretKey}}\""
     }, {
         "name": "virtualbox",
