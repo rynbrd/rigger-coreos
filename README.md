@@ -1,7 +1,8 @@
 Rig CoreOS Template
 ===================
 This is a CoreOS image template for use with [Rig Builder](builder). It may
-also be used by [Packer](packer) directly.
+also be used by [Packer](packer) directly. It only supports the new btrfs
+filesystem layout. Earliest tested version is 274.0.0.
 
 License
 -------

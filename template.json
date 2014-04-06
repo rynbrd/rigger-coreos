@@ -44,8 +44,8 @@
             ["modifyvm", "{{.Name}}", "--cpus", "1"],
             ["modifyvm", "{{.Name}}", "--memory", "1024"]
         ],
-        "iso_url": "http://downloads.sourceforge.net/project/systemrescuecd/sysresccd-x86/3.8.1/systemrescuecd-x86-3.8.1.iso?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fsystemrescuecd%2Ffiles%2Fsysresccd-x86%2F3.8.1%2Fsystemrescuecd-x86-3.8.1.iso%2Fdownload&ts=1396049223&use_mirror=softlayer-ams",
-        "iso_checksum": "22acfc87b32d096290531d82feb87602",
+        "iso_url": "http://downloads.sourceforge.net/project/systemrescuecd/sysresccd-x86/4.0.0/systemrescuecd-x86-4.0.0.iso?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fsystemrescuecd%2Ffiles%2Fsysresccd-x86%2F4.0.0%2F&ts=1396758713&use_mirror=softlayer-dal",
+        "iso_checksum": "bd67d9111ee7817aa1d634f244735af6",
         "iso_checksum_type": "md5",
         "ssh_username": "root",
         "ssh_password": "PackerInstaller",
@@ -86,9 +86,9 @@
             "#!/bin/sh",
             "wget https://raw.github.com/coreos/init/master/bin/coreos-install -O /tmp/coreos-install || exit 1",
             "bash /tmp/coreos-install -d /dev/sda -V {{user `version`}}",
-            "mount /dev/sda9 /mnt/gentoo",
-            "mkdir -p /mnt/gentoo/overlays/home/core/.ssh",
-            "cp /tmp/id_rsa.pub /mnt/gentoo/overlays/home/core/.ssh/authorized_keys"
+            "mount -o subvol=root /dev/sda9 /mnt/gentoo",
+            "mkdir -p /mnt/gentoo/home/core/.ssh",
+            "cp /tmp/id_rsa.pub /mnt/gentoo/home/core/.ssh/authorized_keys"
         ]
     }]
 }
