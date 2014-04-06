@@ -10,7 +10,6 @@
         "aws_x509_key": ""
     },
     "builders": [{
-        "name": "amazon",
         "type": "amazon-instance",
         "account_id": "{{user `aws_account_id`}}",
         "access_key": "{{user `aws_access_key`}}",
@@ -22,9 +21,9 @@
         "s3_bucket": "{{user `aws_bucket`}}/coreos/{{user `version`}}",
         "region": "us-east-1",
         "ami_regions": ["us-west-1", "us-west-2"],
-        "source_ami": "ami-6b726502",
+        "source_ami": "ami-e1455788",
         "instance_type": "m1.small",
-        "ssh_username": "ec2-user",
+        "ssh_username": "ubuntu",
         "ssh_timeout": "5m",
         "bundle_prefix": "coreos",
         "bundle_vol_command": "ec2-bundle-image -i /tmp/coreos.bin -p coreos -d \"{{.Destination}}\" --arch x86_64 --kernel \"aki-919dcaf8\" --block-device-mapping ami=sda -u \"{{.AccountId}}\" -c \"{{.CertPath}}\" -k \"{{.KeyPath}}\"",
@@ -58,12 +57,21 @@
         "shutdown_command": "shutdown -h now"
     }],
     "provisioners": [{
+        "type": "file",
+        "only": ["amazon"],
+        "source": "files",
+        "destination": "/tmp/files"
+    }, {
         "type": "shell",
         "only": ["amazon"],
         "inline": [
             "#!/bin/bash",
             "echo '>> Fixing sudo...'",
             "sudo sed -i -r -e 's|^(Defaults    secure_path.*)|\\1:/opt/aws/bin|g' /etc/sudoers",
+            "echo '>> Installing EC2 tools...'",
+            "sudo cp /tmp/files/sources.list /etc/apt/sources.list",
+            "sudo apt-get update -y",
+            "sudo apt-get install -y ec2-api-tools ec2-ami-tools",
             "echo '>> Prepping /tmp...'",
             "cd /tmp",
             "mkdir bundle",
