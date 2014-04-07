@@ -1,0 +1,38 @@
+#!/bin/sh
+test "$(whoami)" != "root" && exec sudo -n -E "$0" "$@"
+
+if [ -z "$VERSION" ]; then
+	echo "VERSION environment variable not set"
+	exit 1
+fi
+
+set -e
+TMP=/tmp
+FILES="$TMP/files"
+BUNDLE="$TMP/bundle"
+IMAGE="$TMP/coreos.bin"
+SIZE=9G
+
+aws_tools() {
+	cp "$FILES/sources.list" /etc/apt/sources.list
+	apt-get update -y
+	apt-get install -y ec2-api-tools ec2-ami-tools
+}
+
+image_create() {
+	# usage: image_create
+	local lo=$(losetup -f)
+	local install="$TMP/coreos-install"
+	mkdir -p "$BUNDLE"
+	truncate -s "$SIZE" "$IMAGE"
+	losetup "$lo" "$IMAGE"
+	wget https://raw.github.com/coreos/init/master/bin/coreos-install -O "$install"
+	bash "$install" -o ami -d "$lo" -V "$VERSION"
+	losetup -d "$lo"
+}
+
+echo ">> Installing AWS tools..."
+aws_tools
+
+echo ">> Creating image..."
+image_create

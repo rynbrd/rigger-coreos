@@ -67,23 +67,8 @@
     }, {
         "type": "shell",
         "only": ["amazon-instance"],
-        "inline": [
-            "#!/bin/sh",
-            "test \"$(whoami)\" != \"root\" && exec sudo -n \"$0\" \"$@\"",
-            "set -e",
-            "echo '>> Installing EC2 tools...'",
-            "cp /tmp/files/sources.list /etc/apt/sources.list",
-            "apt-get update -y",
-            "apt-get install -y ec2-api-tools ec2-ami-tools",
-            "echo '>> Preparing image...'",
-            "mkdir /tmp/bundle",
-            "truncate -s 9G /tmp/coreos.bin",
-            "losetup /dev/loop0 /tmp/coreos.bin",
-            "wget https://raw.github.com/coreos/init/master/bin/coreos-install -O /tmp/coreos-install",
-            "bash /tmp/coreos-install -o ami -d /dev/loop0 -V {{user `version`}}",
-            "losetup -d /dev/loop0",
-            "echo '>> Done.'"
-        ]
+        "script": "scripts/amazon-instance",
+        "environment_vars": ["VERSION={{user `version`}}"]
     }, {
         "type": "file",
         "only": ["virtualbox"],
@@ -92,14 +77,7 @@
     }, {
         "type": "shell",
         "only": ["virtualbox"],
-        "inline": [
-            "#!/bin/sh",
-            "set -e",
-            "wget https://raw.github.com/coreos/init/master/bin/coreos-install -O /tmp/coreos-install",
-            "bash /tmp/coreos-install -d /dev/sda -V {{user `version`}}",
-            "mount -o subvol=root /dev/sda9 /mnt/gentoo",
-            "mkdir -p /mnt/gentoo/home/core/.ssh",
-            "cp /tmp/id_rsa.pub /mnt/gentoo/home/core/.ssh/authorized_keys"
-        ]
+        "script": "scripts/virtualbox-iso",
+        "environment_vars": ["VERSION={{user `version`}}"]
     }]
 }
