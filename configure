@@ -5,6 +5,8 @@ if echo "${PLATFORMS[@]}" | egrep -q "\bamazon.*" || [ -z "${PLATFORMS[@]}" ]; t
 	test -f "$AWS_CONFIG" || fatal "AWS config not found at '$AWS_CONFIG'."
 	source "$AWS_CONFIG"
 
+	tar --exclude '.*' -cJf files/tools.tar.xz tools
+
 	test -n "$AWS_ACCOUNT_ID" || fatal "No AWS_ACCOUNT_ID in AWS config."
 	test -n "$AWS_ACCESS_KEY" || fatal "No AWS_ACCESS_KEY in AWS config."
 	test -n "$AWS_SECRET_KEY" || fatal "No AWS_SECRET_KEY in AWS config."

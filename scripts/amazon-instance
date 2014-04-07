@@ -9,14 +9,20 @@ fi
 set -e
 TMP=/tmp
 FILES="$TMP/files"
+TOOLS="$TMP/tools"
 BUNDLE="$TMP/bundle"
 IMAGE="$TMP/coreos.bin"
 SIZE=9G
+PATH="$TOOLS:$PATH"
 
 aws_tools() {
 	cp "$FILES/sources.list" /etc/apt/sources.list
 	apt-get update -y
 	apt-get install -y ec2-api-tools ec2-ami-tools
+}
+
+coreos_tools() {
+	tar -xf "$FILES/tools.tar.xz" -C "$(dirname "$TOOLS")"
 }
 
 image_create() {
@@ -33,6 +39,9 @@ image_create() {
 
 echo ">> Installing AWS tools..."
 aws_tools
+
+echo ">> Installing CoreOS tools..."
+coreos_tools
 
 echo ">> Creating image..."
 image_create
