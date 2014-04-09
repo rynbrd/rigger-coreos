@@ -31,7 +31,7 @@ prepare_env_metal() {
 }
 
 prepare_env_aws() {
-	cp "$FILES/sources.list" /etc/apt/sources.list
+	cp "$FILES/amazon/sources.list" /etc/apt/sources.list
 	apt-get update -y
 	apt-get install -y ec2-api-tools ec2-ami-tools kpartx
 }
@@ -105,7 +105,7 @@ update_tree_aws() {
 
 update_tree_metal() {
 	mkdir -p "$ROOT/home/core/.ssh"
-	cp "$FILES/id_rsa.pub" "$ROOT/home/core/.ssh/authorized_keys"
+	cp "$FILES/metal/id_rsa.pub" "$ROOT/home/core/.ssh/authorized_keys"
 }
 
 update_tree() {
