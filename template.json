@@ -61,23 +61,11 @@
     }],
     "provisioners": [{
         "type": "file",
-        "only": ["amazon-instance"],
         "source": "files",
         "destination": "/tmp/files"
     }, {
         "type": "shell",
-        "only": ["amazon-instance"],
-        "script": "scripts/amazon-instance",
-        "environment_vars": ["VERSION={{user `version`}}"]
-    }, {
-        "type": "file",
-        "only": ["virtualbox"],
-        "source": "id_rsa.pub",
-        "destination": "/tmp/id_rsa.pub"
-    }, {
-        "type": "shell",
-        "only": ["virtualbox"],
-        "script": "scripts/virtualbox-iso",
+        "script": "provision",
         "environment_vars": ["VERSION={{user `version`}}"]
     }]
 }

@@ -1,0 +1,143 @@
+#!/bin/sh
+test "$(whoami)" != "root" && exec sudo -n -E "$0" "$@"
+
+set -e
+VERSION=${VERSION:-$2}
+BUILDER=${PACKER_BUILDER_TYPE:-$1}
+
+TMP=/tmp
+FILES="$TMP/files"
+TOOLS="$TMP/tools"
+ROOT=$(mktemp -d coreos-XXXX)
+DISK=
+OEM=
+
+die() {
+	echo "$@"
+	exit 1
+}
+
+check_vars() {
+	test -z "$VERSION" || die "version is missing"
+	test -z "$PACKER_BUILDER_TYPE" || die "builder is missing"
+}
+
+prepare_tools() {
+	tar -xf "$FILES/tools.tar.xz" -C "$(dirname "$TOOLS")"
+}
+
+prepare_env_metal() {
+	true
+}
+
+prepare_env_aws() {
+	cp "$FILES/sources.list" /etc/apt/sources.list
+	apt-get update -y
+	apt-get install -y ec2-api-tools ec2-ami-tools kpartx
+}
+
+prepare_env() {
+	case "$BUILDER" in
+	amazon-*)
+		prepare_env_aws "$@"
+		;;
+	*)
+		prepare_env_metal "$@"
+		;;
+	esac
+}
+
+prepare_disk_metal() {
+	DISK=$(find /dev -maxdepth 1 -regextype posix-extended -regex '^/dev/(s|v|xv)da' | sort | head -n1)
+}
+
+prepare_disk_aws() {
+	IMAGE="/tmp/coreos.bin"
+	truncate -s 9G "$IMAGE"
+	DISK=$(losetup -f --show "$IMAGE")
+	OEM=ami
+}
+
+prepare_disk() {
+	case "$BUILDER" in
+	amazon-*)
+		prepare_disk_aws "$@"
+		;;
+	*)
+		prepare_disk_metal "$@"
+		;;
+	esac
+}
+
+write_disk() {
+	local install="$TMP/coreos-install"
+	wget https://raw.github.com/coreos/init/master/bin/coreos-install -O "$install"
+	bash "$install" -o "$OEM" -d "$DISK" -V "$VERSION"
+}
+
+cleanup_disk_metal() {
+	true
+}
+
+cleanup_disk_aws() {
+	losetup -d "$DISK"
+}
+
+cleanup_disk() {
+	case "$BUILDER" in
+	amazon-*)
+		cleanup_disk_aws
+		;;
+	*)
+		cleanup_disk_metal
+		;;
+	esac
+}
+
+mount_tree() {
+	mkdir -p "$ROOT"
+	"$TOOLS/coreos-fs" mount "$DISK" "$ROOT"
+}
+
+update_tree_aws() {
+	true
+}
+
+update_tree_metal() {
+	mkdir -p "$ROOT/home/core/.ssh"
+	cp "$FILES/id_rsa.pub" "$ROOT/home/core/.ssh/authorized_keys"
+}
+
+update_tree() {
+	case "$BUILDER" in
+	amazon-*)
+		update_tree_aws
+		;;
+	*)
+		update_tree_metal
+		;;
+	esac
+}
+
+unmount_tree() {
+	"$TOOLS/coreos-fs" umount "$DISK"
+}
+
+echo ">> Provisioning for builder $BUILDER"
+echo "-- Preparing tools ..."
+prepare_tools
+echo "-- Preparing environment ..."
+prepare_env
+echo "-- Preparing disk ..."
+prepare_disk
+echo "-- Writing disk $DISK ..."
+write_disk
+echo " - Mounting filesystem tree ..."
+mount_tree
+echo "-- Updating filesystem tree ..."
+update_tree
+echo "-- Unmounting filesystem tree ..."
+unmount_tree
+echo "-- Cleaning up disks ..."
+cleanup_disk
+echo "** Provisioning complete!"

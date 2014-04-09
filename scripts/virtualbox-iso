@@ -1,7 +1,0 @@
-#!/bin/sh
-set -e
-wget https://raw.github.com/coreos/init/master/bin/coreos-install -O /tmp/coreos-install
-bash /tmp/coreos-install -d /dev/sda -V "$VERSION"
-mount -o subvol=root /dev/sda9 /mnt/gentoo
-mkdir -p /mnt/gentoo/home/core/.ssh
-cp /tmp/id_rsa.pub /mnt/gentoo/home/core/.ssh/authorized_keys
