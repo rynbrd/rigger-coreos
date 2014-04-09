@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+VARTMP=$(mktemp -d)
+VARDEV=/dev/xvdb
+test -b "$VARDEV" || exit 0 
+mkfs.btrfs -L VAR "$DEV"
+mkdir "$VARTMP/var"
+mount "$DEV" "$VARTMP/var"
+cp -a /var "$VARTMP"
+umount "$DEV"
+rmdir "$VARTMP/var"
+rmdir "$VARTMP"

@@ -1,0 +1,9 @@
+[Unit]
+Requires=ec2-var.service
+Conflicts=umount.target
+Before=local-fs.target umount.target
+ConditionPathIsMountPoint=/usr
+
+[Mount]
+What=/dev/xvdb
+Where=/var
