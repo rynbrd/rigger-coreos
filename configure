@@ -2,12 +2,6 @@
 PACKER_VERSION="0.5.2"
 
 if echo "${PLATFORMS[@]}" | egrep -q "\bamazon.*" || [ -z "${PLATFORMS[@]}" ]; then
-	AWS_CONFIG="$BASE/sources.cfg"
-	test -f "$AWS_CONFIG" || fatal "AWS config not found at '$AWS_CONFIG'."
-	source "$AWS_CONFIG"
-
-	tar --exclude '.*' -cJf files/tools.tar.xz tools
-
 	test -n "$AWS_ACCOUNT_ID" || fatal "No AWS_ACCOUNT_ID in AWS config."
 	test -n "$AWS_ACCESS_KEY" || fatal "No AWS_ACCESS_KEY in AWS config."
 	test -n "$AWS_SECRET_KEY" || fatal "No AWS_SECRET_KEY in AWS config."
@@ -17,6 +11,8 @@ if echo "${PLATFORMS[@]}" | egrep -q "\bamazon.*" || [ -z "${PLATFORMS[@]}" ]; t
 	test -f "$AWS_X509_CERT" || fatal "AWS X509 certificate not found at '$AWS_X509_CERT'."
 	test -f "$AWS_X509_KEY" || fatal "AWS X509 key not found at '$AWS_X509_KEY'."
 	
+	tar --exclude '.*' -cJf files/tools.tar.xz tools
+
 	USERDATA+=("aws_account_id=$AWS_ACCOUNT_ID")
 	USERDATA+=("aws_access_key=$AWS_ACCESS_KEY")
 	USERDATA+=("aws_secret_key=$AWS_SECRET_KEY")
