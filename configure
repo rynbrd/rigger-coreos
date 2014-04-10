@@ -1,4 +1,5 @@
 #!/bin/bash
+PACKER_VERSION="0.5.2"
 
 if echo "${PLATFORMS[@]}" | egrep -q "\bamazon.*" || [ -z "${PLATFORMS[@]}" ]; then
 	AWS_CONFIG="$BASE/sources.cfg"
