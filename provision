@@ -100,11 +100,14 @@ mount_tree() {
 }
 
 update_tree_aws() {
+	local etc_units="$ROOT/etc/systemd/system"
 	local lib_units="$ROOT/lib/systemd/system"
 	local scripts="$ROOT/lib/coreos"
 	install -m 0644 -o root -g root "$FILES/amazon/var.mount" "$lib_units/var.mount"
 	install -m 0644 -o root -g root "$FILES/amazon/create-var.service" "$lib_units/create-var.service"
 	install -m 0755 -o root -g root "$FILES/amazon/create_var" "$scripts/create_var"
+	ln -s "/dev/null" "$etc_units/update-engine.service"
+	ln -s "/dev/null" "$etc_units/update-engine-reboot-manager.service"
 }
 
 update_tree_metal() {
