@@ -1,12 +1,14 @@
 #!/bin/sh
+DEVICE=/dev/xvdb
+PARTITION="${DEVICE}1"
+echo "Creating /var on $DEVICE ..."
+
 set -e
-VARTMP=$(mktemp -d)
-VARDEV=/dev/xvdb
-test -b "$VARDEV" || exit 0 
-mkfs.btrfs -L VAR "$DEV"
-mkdir "$VARTMP/var"
-mount "$DEV" "$VARTMP/var"
-cp -a /var "$VARTMP"
-umount "$DEV"
-rmdir "$VARTMP/var"
-rmdir "$VARTMP"
+test -b "$DEVICE" || exit 0
+
+cgpt create "$DEVICE"
+cgpt add -i 1 -b 4096 -s 2097152 -t linux-data -l VAR "$DEVICE"
+partx -a "$DEVICE"
+cgpt resize "$PARTITION"
+/usr/sbin/mkfs.btrfs -L VAR "$PARTITION"
+#/usr/sbin/mkfs.btrfs -f -L VAR "$DEVICE"

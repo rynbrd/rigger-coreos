@@ -1,11 +1,10 @@
 [Unit]
 Description=Create Var Filesystem
-After=remount-usr.service remount-root.service
-Before=local-fs-pre.target local-fs.target
-ConditionVirtualization=!container
+DefaultDependencies=no
+Before=local-fs-pre.target
 
 [Service]
 Type=oneshot
 RemainAfterExit=no
-ExecStart=/usr/lib/coreos/create_var
+ExecStart=/lib/coreos/create_var
 StandardOutput=journal+console

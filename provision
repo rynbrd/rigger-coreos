@@ -100,10 +100,10 @@ mount_tree() {
 }
 
 update_tree_aws() {
-	local units="$ROOT/lib/systemd/system"
+	local lib_units="$ROOT/lib/systemd/system"
 	local scripts="$ROOT/lib/coreos"
-	install -m 0644 -o root -g root "$FILES/amazon/var.mount" "$units/var.mount"
-	install -m 0644 -o root -g root "$FILES/amazon/create-var.service" "$units/create-var.service"
+	install -m 0644 -o root -g root "$FILES/amazon/var.mount" "$lib_units/var.mount"
+	install -m 0644 -o root -g root "$FILES/amazon/create-var.service" "$lib_units/create-var.service"
 	install -m 0755 -o root -g root "$FILES/amazon/create_var" "$scripts/create_var"
 }
 
