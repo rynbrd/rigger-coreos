@@ -20,7 +20,7 @@
         "ami_name": "CoreOS {{user `version`}}",
         "s3_bucket": "{{user `aws_bucket`}}/coreos/{{user `version`}}",
         "region": "us-east-1",
-        "source_ami": "ami-ee12f486",
+        "source_ami": "ami-30837058",
         "instance_type": "m1.small",
         "ssh_username": "ubuntu",
         "ssh_timeout": "5m",
