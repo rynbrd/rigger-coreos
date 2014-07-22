@@ -1,5 +1,5 @@
 #!/bin/bash
-PACKER_VERSION="0.5.2"
+PACKER_VERSION="0.6.1"
 
 if echo "${PLATFORMS[@]}" | egrep -q "\bamazon.*" || [ -z "${PLATFORMS[@]}" ]; then
 	test -n "$AWS_ACCOUNT_ID" || fatal "No AWS_ACCOUNT_ID in AWS config."

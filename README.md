@@ -3,7 +3,7 @@ Rigger CoreOS Source
 CoreOS image source for [Rigger][rigger]. Builds new style images with
 read-only /usr and btrfs. Minimum allowed version is 197.0.0. Special version
 strings are alpha and master. See the [amd64-usr index][coreos-images] for
-available image versions. [Packer][packer] v0.5.2 is used to build the images.
+available image versions. [Packer][packer] v0.6.1 is used to build the images.
 
 Platforms
 ---------
