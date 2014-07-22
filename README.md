@@ -1,8 +1,7 @@
 Rigger CoreOS Source
 ====================
 CoreOS image source for [Rigger][rigger]. Builds new style images with
-read-only /usr and btrfs. Minimum allowed version is 197.0.0. Special version
-strings are alpha and master. See the [amd64-usr index][coreos-images] for
+read-only /usr and btrfs. See the [amd64-usr index][coreos-images] for
 available image versions. [Packer][packer] v0.6.1 is used to build the images.
 
 Platforms
@@ -37,4 +36,4 @@ LICENSE file. If it is missing then a copy may be found on the project page.
 
 [rigger]: https://github.com/BlueDragonX/rigger "Rigger"
 [packer]: http://packer.io "Packer"
-[coreos-images]: http://storage.core-os.net/coreos/amd64-usr "CoreOS Images"
+[coreos-images]: http://beta.release.core-os.net/amd64-usr "CoreOS Images"
