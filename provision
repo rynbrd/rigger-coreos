@@ -5,6 +5,15 @@ set -e
 VERSION=${VERSION:-$2}
 BUILDER=${PACKER_BUILDER_TYPE:-$1}
 
+case "$BUILDER" in
+amazon-*)
+	ENV=aws
+	;;
+*)
+	ENV=metal
+	;;
+esac
+
 TMP=/tmp
 FILES="$TMP/files"
 TOOLS="$TMP/tools"
@@ -37,11 +46,11 @@ prepare_env_aws() {
 }
 
 prepare_env() {
-	case "$BUILDER" in
-	amazon-*)
+	case "$ENV" in
+	aws)
 		prepare_env_aws "$@"
 		;;
-	*)
+	metal)
 		prepare_env_metal "$@"
 		;;
 	esac
@@ -59,11 +68,11 @@ prepare_disk_aws() {
 }
 
 prepare_disk() {
-	case "$BUILDER" in
-	amazon-*)
+	case "$ENV" in
+	aws)
 		prepare_disk_aws "$@"
 		;;
-	*)
+	metal)
 		prepare_disk_metal "$@"
 		;;
 	esac
@@ -71,8 +80,13 @@ prepare_disk() {
 
 write_disk() {
 	local install="$TMP/coreos-install"
+	local cloud="$FILES/$ENV/cloud-config"
 	wget https://raw.github.com/coreos/init/master/bin/coreos-install -O "$install"
-	bash "$install" -o "$OEM" -d "$DISK" -V "$VERSION"
+	if [[ -e "$cloud" ]]; then
+		bash "$install" -o "$OEM" -d "$DISK" -V "$VERSION" -c "$cloud"
+	else
+		bash "$install" -o "$OEM" -d "$DISK" -V "$VERSION"
+	fi
 }
 
 cleanup_disk_metal() {
@@ -84,11 +98,11 @@ cleanup_disk_aws() {
 }
 
 cleanup_disk() {
-	case "$BUILDER" in
-	amazon-*)
+	case "$ENV" in
+	aws)
 		cleanup_disk_aws
 		;;
-	*)
+	metal)
 		cleanup_disk_metal
 		;;
 	esac
@@ -116,11 +130,11 @@ update_tree_metal() {
 }
 
 update_tree() {
-	case "$BUILDER" in
-	amazon-*)
+	case "$ENV" in
+	aws)
 		update_tree_aws
 		;;
-	*)
+	metal)
 		update_tree_metal
 		;;
 	esac
