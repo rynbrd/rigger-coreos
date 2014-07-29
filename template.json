@@ -2,6 +2,7 @@
     "variables": {
         "version": "{{env `VERSION`}}",
         "artifacts": "{{env `ARTIFACTS`}}",
+        "channel": "stable",
         "aws_account_id": "",
         "aws_access_key": "",
         "aws_secret_key": "",
@@ -66,6 +67,6 @@
     }, {
         "type": "shell",
         "script": "provision",
-        "environment_vars": ["VERSION={{user `version`}}"]
+        "environment_vars": ["VERSION={{user `version`}}", "CHANNEL={{user `channel`}}"]
     }]
 }

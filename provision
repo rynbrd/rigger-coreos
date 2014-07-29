@@ -4,6 +4,7 @@ test "$(whoami)" != "root" && exec sudo -n -E "$0" "$@"
 set -e
 VERSION=${VERSION:-$2}
 BUILDER=${PACKER_BUILDER_TYPE:-$1}
+CHANNEL=${CHANNEL:-$3}
 
 case "$BUILDER" in
 amazon-*)
@@ -84,9 +85,9 @@ write_disk() {
 	wget https://raw.github.com/coreos/init/master/bin/coreos-install -O "$install"
 	sed -i 's/blockdev --rereadpt/partprobe/g' "$install"
 	if [[ -e "$cloud" ]]; then
-		bash "$install" -o "$OEM" -d "$DISK" -V "$VERSION" -c "$cloud"
+		bash "$install" -o "$OEM" -d "$DISK" -V "$VERSION" -C "$CHANNEL" -c "$cloud"
 	else
-		bash "$install" -o "$OEM" -d "$DISK" -V "$VERSION"
+		bash "$install" -o "$OEM" -d "$DISK" -V "$VERSION" -C "$CHANNEL"
 	fi
 }
 
