@@ -42,7 +42,7 @@ prepare_env_metal() {
 prepare_env_aws() {
 	cp "$FILES/amazon/sources.list" /etc/apt/sources.list
 	apt-get update -y
-	apt-get install -y ec2-api-tools ec2-ami-tools kpartx
+	apt-get install -y ec2-api-tools ec2-ami-tools kpartx parted
 }
 
 prepare_env() {
@@ -82,6 +82,7 @@ write_disk() {
 	local install="$TMP/coreos-install"
 	local cloud="$FILES/$ENV/cloud-config"
 	wget https://raw.github.com/coreos/init/master/bin/coreos-install -O "$install"
+	sed -i 's/blockdev --rereadpt/partprobe/g' "$install"
 	if [[ -e "$cloud" ]]; then
 		bash "$install" -o "$OEM" -d "$DISK" -V "$VERSION" -c "$cloud"
 	else
