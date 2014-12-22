@@ -64,7 +64,7 @@ prepare_disk_metal() {
 
 prepare_disk_aws() {
 	IMAGE="/tmp/coreos.bin"
-	truncate -s 9G "$IMAGE"
+	truncate -s 10G "$IMAGE"
 	DISK=$(losetup -f --show "$IMAGE")
 	OEM=ami
 }
