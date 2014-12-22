@@ -83,7 +83,8 @@ prepare_disk() {
 write_disk() {
 	local install="$TMP/coreos-install"
 	local cloud="$FILES/$ENV/cloud-config"
-	wget https://raw.github.com/coreos/init/master/bin/coreos-install -O "$install"
+	curl --progress-bar --remote-time -o "$install" \
+		-LR https://raw.github.com/coreos/init/master/bin/coreos-install
 	sed -i 's/blockdev --rereadpt/partprobe/g' "$install"
 	if [[ -e "$cloud" ]]; then
 		bash "$install" -o "$OEM" -d "$DISK" -V "$VERSION" -C "$CHANNEL" -c "$cloud"
