@@ -2,7 +2,7 @@
     "variables": {
         "version": "{{env `VERSION`}}",
         "artifacts": "{{env `ARTIFACTS`}}",
-        "channel": "stable",
+        "channel": "{{env `CHANNEL`}}",
         "aws_account_id": "",
         "aws_access_key": "",
         "aws_secret_key": "",

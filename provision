@@ -5,6 +5,7 @@ set -e
 VERSION=${VERSION:-$2}
 BUILDER=${PACKER_BUILDER_TYPE:-$1}
 CHANNEL=${CHANNEL:-$3}
+CHANNEL=${CHANNEL:-stable}
 
 case "$BUILDER" in
 amazon-*)
