@@ -1,4 +1,11 @@
 #!/bin/bash
+
+set -e -o pipefail
+
+# Ensure that required executables exist before proceeding
+which tar >/dev/null || fatal "tar not found"
+which xz >/dev/null || fatal "xz not found"
+
 PACKER_VERSION="0.7.5"
 
 if echo "${PLATFORMS[@]}" | egrep -q "\bamazon.*" || [ -z "${PLATFORMS[@]}" ]; then
@@ -10,8 +17,15 @@ if echo "${PLATFORMS[@]}" | egrep -q "\bamazon.*" || [ -z "${PLATFORMS[@]}" ]; t
 	test -n "$AWS_X509_KEY" || AWS_X509_KEY="$BASE/aws_key.pem"
 	test -f "$AWS_X509_CERT" || fatal "AWS X509 certificate not found at '$AWS_X509_CERT'."
 	test -f "$AWS_X509_KEY" || fatal "AWS X509 key not found at '$AWS_X509_KEY'."
-	
-	tar --exclude '.*' -cJf files/tools.tar.xz tools
+
+	local tools_tarball="files/tools.tar.xz"
+	tar --exclude '.*' -cJf ${tools_tarball} tools
+	if ! [[ -s ${tools_tarball} ]]; then
+		if [[ -e ${tools_tarball} ]]; then
+			rm ${tools_tarball}
+		fi
+		fatal "failed to create ${tools_tarball}" >&2
+	fi
 
 	USERDATA+=("aws_account_id=$AWS_ACCOUNT_ID")
 	USERDATA+=("aws_access_key=$AWS_ACCESS_KEY")
