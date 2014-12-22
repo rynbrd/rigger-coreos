@@ -19,6 +19,8 @@
         "x509_key_path": "{{user `aws_x509_key`}}",
         "x509_upload_path": "/tmp",
         "ami_name": "CoreOS {{user `version`}}",
+        "ami_description": "CoreOS {{user `version`}} (HVM)",
+        "ami_virtualization_type": "hvm",
         "s3_bucket": "{{user `aws_bucket`}}/coreos/{{user `version`}}",
         "region": "us-east-1",
         "source_ami": "ami-30837058",
@@ -30,7 +32,7 @@
             "virtual_name": "ephemeral0"
         }],
         "bundle_prefix": "coreos",
-        "bundle_vol_command": "ec2-bundle-image -i /tmp/coreos.bin -p coreos -d \"{{.Destination}}\" --arch x86_64 --kernel \"aki-919dcaf8\" --block-device-mapping ami=sda,ephemeral0=sdb,ephemeral1=sdc,ephemeral2=sdd,ephemeral3=sde -u \"{{.AccountId}}\" -c \"{{.CertPath}}\" -k \"{{.KeyPath}}\"",
+        "bundle_vol_command": "ec2-bundle-image -i /tmp/coreos.bin -p coreos -d \"{{.Destination}}\" --arch x86_64 --block-device-mapping ami=sda,ephemeral0=sdb,ephemeral1=sdc,ephemeral2=sdd,ephemeral3=sde -u \"{{.AccountId}}\" -c \"{{.CertPath}}\" -k \"{{.KeyPath}}\"",
         "bundle_upload_command": "ec2-upload-bundle -b \"{{.BucketName}}\" -m \"{{.ManifestPath}}\" -a \"{{.AccessKey}}\" -s \"{{.SecretKey}}\""
     }, {
         "name": "virtualbox",
