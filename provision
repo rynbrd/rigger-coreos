@@ -1,10 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 test "$(whoami)" != "root" && exec sudo -n -E "$0" "$@"
 
 set -e
 VERSION=${VERSION:-$2}
 BUILDER=${PACKER_BUILDER_TYPE:-$1}
 CHANNEL=${CHANNEL:-$3}
+CHANNEL=${CHANNEL:-stable}
 
 case "$BUILDER" in
 amazon-*)
@@ -63,7 +64,7 @@ prepare_disk_metal() {
 
 prepare_disk_aws() {
 	IMAGE="/tmp/coreos.bin"
-	truncate -s 9G "$IMAGE"
+	truncate -s 10G "$IMAGE"
 	DISK=$(losetup -f --show "$IMAGE")
 	OEM=ami
 }
@@ -82,7 +83,8 @@ prepare_disk() {
 write_disk() {
 	local install="$TMP/coreos-install"
 	local cloud="$FILES/$ENV/cloud-config"
-	wget https://raw.github.com/coreos/init/master/bin/coreos-install -O "$install"
+	curl --progress-bar --remote-time -o "$install" \
+		-LR https://raw.github.com/coreos/init/master/bin/coreos-install
 	sed -i 's/blockdev --rereadpt/partprobe/g' "$install"
 	if [[ -e "$cloud" ]]; then
 		bash "$install" -o "$OEM" -d "$DISK" -V "$VERSION" -C "$CHANNEL" -c "$cloud"
@@ -132,6 +134,10 @@ update_tree_metal() {
 }
 
 update_tree() {
+	install -m 0644 -o root -g root "$FILES/locale-archive" "$ROOT/usr/lib64/locale/locale-archive"
+	echo LANG=ISO.utf8 > "$ROOT/etc/locale.conf"
+	echo export LANG="ISO.utf8" >> "$ROOT/etc/profile.env"
+	echo export LC_NUMERIC="C" >> "$ROOT/etc/profile.env"
 	case "$ENV" in
 	aws)
 		update_tree_aws
