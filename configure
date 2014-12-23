@@ -1,5 +1,13 @@
 #!/bin/bash
-PACKER_VERSION="0.6.1"
+
+set -e -o pipefail
+
+# Ensure that required executables exist before proceeding
+which tar >/dev/null || fatal "tar not found"
+which xz >/dev/null || fatal "xz not found"
+which egrep >/dev/null || fatal "egrep not found"
+
+PACKER_VERSION="0.7.5"
 
 if echo "${PLATFORMS[@]}" | egrep -q "\bamazon.*" || [ -z "${PLATFORMS[@]}" ]; then
 	test -n "$AWS_ACCOUNT_ID" || fatal "No AWS_ACCOUNT_ID in AWS config."
@@ -10,8 +18,24 @@ if echo "${PLATFORMS[@]}" | egrep -q "\bamazon.*" || [ -z "${PLATFORMS[@]}" ]; t
 	test -n "$AWS_X509_KEY" || AWS_X509_KEY="$BASE/aws_key.pem"
 	test -f "$AWS_X509_CERT" || fatal "AWS X509 certificate not found at '$AWS_X509_CERT'."
 	test -f "$AWS_X509_KEY" || fatal "AWS X509 key not found at '$AWS_X509_KEY'."
-	
-	tar --exclude '.*' -cJf files/tools.tar.xz tools
+
+	# Does the expected image even exist?
+	local channel=$(echo $USERDATA | egrep -o 'channel=[a-z]+' | cut -d '=' -f 2)
+	channel=${channel:-${CHANNEL}}
+	local version=$(echo $USERDATA | egrep -o 'version=[0-9.]+' | cut -d '=' -f 2)
+	version=${version:-${VERSION}}
+	local coreos_source_image_url="http://${channel}.release.core-os.net/amd64-usr/${version}/coreos_production_ami_image.bin.bz2"
+	curl --fail -sI ${coreos_source_image_url} >/dev/null \
+	|| fatal "Image URL unavailable: ${coreos_source_image_url}"
+
+	local tools_tarball="files/tools.tar.xz"
+	tar --exclude '.*' -cJf ${tools_tarball} tools
+	if ! [[ -s ${tools_tarball} ]]; then
+		if [[ -e ${tools_tarball} ]]; then
+			rm ${tools_tarball}
+		fi
+		fatal "failed to create ${tools_tarball}" >&2
+	fi
 
 	USERDATA+=("aws_account_id=$AWS_ACCOUNT_ID")
 	USERDATA+=("aws_access_key=$AWS_ACCESS_KEY")
