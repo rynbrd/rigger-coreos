@@ -134,6 +134,10 @@ update_tree_metal() {
 }
 
 update_tree() {
+	install -m 0644 -o root -g root "$FILES/locale-archive" "$ROOT/usr/lib64/locale/locale-archive"
+	echo LANG=ISO.utf8 > "$ROOT/etc/locale.conf"
+	echo export LANG="ISO.utf8" >> "$ROOT/etc/profile.env"
+	echo export LC_NUMERIC="C" >> "$ROOT/etc/profile.env"
 	case "$ENV" in
 	aws)
 		update_tree_aws
